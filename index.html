@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重写前端</title>
+    <style>
+        body,
+        div,
+        ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+
+
+        #menu {
+            list-style: none;
+            height: 100%;
+            overflow: auto;
+            border-right: 1px solid rgba(0, 0, 0, .07);
+            background-color: #fafafa;
+        }
+
+        #menu>li {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        #menu>li.actived,
+        #menu>li:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        @media screen and (max-device-width: 600px) {
+            .container {
+                position: relative;
+                height: 100%;
+            }
+
+            .left {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                transform: translateX(-100%);
+            }
+
+            .left.show {
+                transform: translate(0);
+                transition: transform 0.5 ease-in 0.1;
+            }
+
+            .right {
+                width: 100%;
+                height: 100%;
+            }
+
+            #icon {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 160px;
+                height: 60px;
+            }
+        }
+
+        @media screen and (min-device-width: 601px) {
+            .container {
+                display: flex;
+                height: 100%;
+            }
+
+            .left {
+                flex: 0 0 300px;
+                height: 100%;
+                overflow: hidden auto;
+            }
+
+            .right {
+                flex: auto;
+                height: 100%;
+            }
+
+            #icon {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="left">
+            <ul id="menu"></ul>
+        </div>
+        <div class="right">
+            <iframe id="iframe" frameborder="0" width="100%" height="100%"></iframe>
+        </div>
+        <div id="icon"></div>
+    </div>
+    <script>
+        let activedIndex = 0;
+        const menus = [
+            '00丨开篇词丨从今天起，重新理解前端',
+            '01丨明确你的前端学习路线与方法',
+            '02丨列一份前端知识架构图',
+            '03丨HTML语义：div和span不是够用了吗？',
+            '04丨HTML语义：如何运用语义类标签来呈现Wiki网页？',
+            '05丨JavaScript类型：关于类型，有哪些你不知道的细节？',
+            '06丨JavaScript对象：面向对象还是基于对象？',
+            '07丨JavaScript对象：我们真的需要模拟类吗？',
+            '08丨JavaScript对象：你知道全部的对象分类吗？',
+            '09丨CSS语法：除了属性和选择器，你还需要知道这些带@的规则',
+            '10丨浏览器：一个浏览器是如何工作的？（阶段一）',
+            '11丨浏览器：一个浏览器是如何工作的？（阶段二）',
+            '12丨浏览器：一个浏览器是如何工作的（阶段三）',
+            '13丨浏览器：一个浏览器是如何工作的？（阶段四）',
+            '14丨浏览器：一个浏览器是如何工作的？（阶段五）',
+            '15丨HTML元信息类标签：你知道head里一共能写哪几种标签吗？',
+            '16丨JavaScript执行（一）：Promise里的代码为什么比setTimeout先执行？',
+            '17丨JavaScript执行（二）：闭包和执行上下文到底是怎么回事？',
+            '18丨JavaScript执行（三）：你知道现在有多少种函数吗？',
+            '19丨JavaScript执行（四）：try里面放return，finally还会执行吗？',
+            '20丨CSS 选择器：如何选中svg里的a元素？',
+            '21丨CSS选择器：伪元素是怎么回事儿？',
+            '22丨浏览器DOM：你知道HTML的节点有哪几种吗？',
+            '23丨HTML链接：除了a标签，还有哪些标签叫链接？',
+            '24丨CSS排版：从毕升开始，我们就开始用正常流了',
+            '25丨浏览器CSSOM：如何获取一个元素的准确位置',
+            '26丨JavaScript词法：为什么12',
+            '27丨（小实验）理解编译原理：一个四则运算的解释器',
+            '28丨JavaScript语法（预备篇）：到底要不要写分号呢？',
+            '29丨JavaScript语法（一）：在script标签写export为什么会抛错？',
+            '30丨JavaScript语法（二）：你知道哪些JavaScript语句？',
+            '31丨JavaScript语法（三）：什么是表达式语句？',
+            '32丨JavaScript语法（四）：新加入的运算符，哪里有些不一样呢？？',
+            '33丨HTML替换型元素：为什么link一个CSS要用href，而引入js要用src呢？',
+            '34丨HTML小实验：用代码分析HTML标准',
+            '35丨CSS Flex排版：为什么垂直居中这么难？',
+            '36丨浏览器事件：为什么会有捕获过程和冒泡过程？',
+            '37丨浏览器API（小实验）：动手整理全部API',
+            '38丨CSS动画与交互：为什么动画要用贝塞尔曲线这么奇怪的东西？',
+            '39丨HTML语言：DTD到底是什么？',
+            '40丨CSS渲染：CSS是如何绘制颜色的？',
+            '41丨CSS小实验：动手做，用代码挖掘CSS属性',
+            '42丨HTML·ARIA：可访问性是只给盲人用的特性么？',
+            '43丨性能：前端的性能到底对业务数据有多大的影响？',
+            '44丨工具链：什么样的工具链才能提升团队效率？',
+            '45丨持续集成：几十个前端一起工作，如何保证工作质量？',
+            '46丨搭建系统：大量的低价值需求应该如何应对？',
+            '47丨前端架构：前端架构有哪些核心问题？',
+            '答疑加餐丨学了这么多前端的“小众”知识，到底对我有什么帮助？',
+            '加餐丨前端交互基础设施的建设',
+            '加餐丨前端与图形学',
+            '期中答疑丨name(){}与name function() {}，两种写法有什么区别吗？',
+            '期末答疑（一）：前端代码单元测试怎么做？',
+            '期末答疑（二）：前端架构中，每个逻辑页面如何可以做到独立发布呢？',
+            '新年彩蛋丨2019，有哪些前端技术值得关注？',
+            '用户故事丨那些你与“重学前端”的不解之缘',
+            '尾声丨长风破浪会有时，直挂云帆济沧海',
+        ];
+        const menuUl = document.getElementById('menu');
+        const iframe = document.getElementById('iframe');
+
+        const fragment = document.createDocumentFragment();
+        menus.forEach((m, i) => {
+            const oLi = document.createElement('li');
+            oLi.innerHTML = m;
+            oLi.addEventListener('click', function () {
+                iframe.src = `./${m}.html`;
+                activedIndex = i;
+                const lis = document.querySelectorAll('li');
+                lis.forEach((l, _i) => {
+                    if (activedIndex === _i) {
+                        l.classList = 'actived';
+                    } else {
+                        l.classList = '';
+                    }
+                });
+                const icon = document.getElementById('icon');
+                if (icon.style.display !== 'none') {
+                    const left = document.querySelector('.left');
+                    left.classList = 'left';
+                }
+            });
+            fragment.appendChild(oLi);
+        });
+        menuUl.appendChild(fragment);
+
+        menuUl.children[activedIndex].click();
+
+        const icon = document.getElementById('icon');
+        icon.addEventListener('click', function () {
+            const left = document.querySelector('.left');
+            left.classList = 'left show';
+        });
+    </script>
+</body>
+
+</html>
